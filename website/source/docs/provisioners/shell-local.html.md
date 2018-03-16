@@ -40,14 +40,16 @@ required element is "command".
 Exactly *one* of the following is required:
 
 -   `command` (string) - This is a single command to execute. It will be written
-    to a temporary file and run using the `execute_command` call below.
+    to a temporary file and run using the `execute_command` call below. This
+    option is currently unavailable to Windows users -- please use `script` or
+    `scripts` instead.
 
 -   `inline` (array of strings) - This is an array of commands to execute. The
     commands are concatenated by newlines and turned into a single file, so they
     are all executed within the same context. This allows you to change
     directories in one command and use something in the directory in the next
     and so on. Inline scripts are the easiest way to pull off simple tasks
-    within the machine.
+    within the machine. This option is currently unavailable to Windows users -- please use `script` or `scripts` instead.
 
 -   `script` (string) - The path to a script to execute. This path can be
     absolute or relative. If it is relative, it is relative to the working
@@ -151,13 +153,6 @@ work as you expect it to.
           "execute_command": ["bash", "-c", "{{.Vars}} {{.Script}}"],
           "use_linux_pathing": true,
           "scripts": ["C:/Users/me/scripts/example_bash.sh"]
-      },
-      {
-          "type": "shell-local",
-          "environment_vars": ["PROVISIONERTEST=ProvisionerTest2"],
-          "execute_command": ["bash", "-c", "{{.Vars}} {{.Script}}"],
-          "use_linux_pathing": true,
-          "script": "C:/Users/me/scripts/example_bash.sh"
       }
   ]
 }

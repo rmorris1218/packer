@@ -17,8 +17,6 @@ import (
 type Config struct {
 	common.PackerConfig `mapstructure:",squash"`
 
-	// ** DEPRECATED: USE INLINE INSTEAD **
-	// ** Only Present for backwards compatibiltiy **
 	// Command is the command to execute
 	Command string
 
@@ -76,8 +74,10 @@ func Validate(config *Config) error {
 		if len(config.ExecuteCommand) == 0 {
 			config.ExecuteCommand = []string{
 				"cmd",
+				"/V",
 				"/C",
 				"{{.Vars}}",
+				"call",
 				"{{.Script}}",
 			}
 		}
@@ -155,20 +155,22 @@ func Validate(config *Config) error {
 			}
 			config.Scripts[index] = converted
 		}
-		// Interoperability issues with WSL makes creating and running tempfiles
-		// via golang's os package basically impossible.
+	}
+	if runtime.GOOS == "windows" {
 		if len(config.Inline) > 0 {
 			errs = packer.MultiErrorAppend(errs,
-				fmt.Errorf("Packer is unable to use the Command and Inline "+
-					"features with the Windows Linux Subsystem. Please use "+
-					"the Script or Scripts options instead"))
+				fmt.Errorf("Packer is currently unable to use the Command "+
+					"and Inline features of the shell-local provisioner and "+
+					"post-processor with Windows. Please use the Script or "+
+					"Scripts options instead."))
 		}
 	}
+
 	// This is currently undocumented and not a feature users are expected to
 	// interact with.
 	if config.EnvVarFormat == "" {
 		if (runtime.GOOS == "windows") && !config.UseLinuxPathing {
-			config.EnvVarFormat = `set "%s=%s" && `
+			config.EnvVarFormat = "set %s=%s & "
 		} else {
 			config.EnvVarFormat = "%s='%s' "
 		}

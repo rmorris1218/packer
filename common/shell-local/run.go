@@ -78,11 +78,11 @@ func Run(ui packer.Ui, config *Config) (bool, error) {
 }
 
 func createInlineScriptFile(config *Config) (string, error) {
-	tf, err := ioutil.TempFile("", "packer-shell")
+	tf, err := ioutil.TempFile(os.TempDir(), "packer-shell")
 	if err != nil {
 		return "", fmt.Errorf("Error preparing shell script: %s", err)
 	}
-
+	defer tf.Close()
 	// Write our contents to it
 	writer := bufio.NewWriter(tf)
 	writer.WriteString(fmt.Sprintf("#!%s\n", config.InlineShebang))
@@ -96,11 +96,11 @@ func createInlineScriptFile(config *Config) (string, error) {
 		return "", fmt.Errorf("Error preparing shell script: %s", err)
 	}
 
-	tf.Close()
 	err = os.Chmod(tf.Name(), 0555)
 	if err != nil {
 		log.Printf("error modifying permissions of temp script file: %s", err.Error())
 	}
+
 	return tf.Name(), nil
 }
 

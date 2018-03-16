@@ -34,37 +34,40 @@ func TestPostProcessorPrepare_Defaults(t *testing.T) {
 
 	err := p.Configure(raws)
 	if err != nil {
-		t.Fatalf("err: %s", err)
+		// this would break on windows becuase inline and command are disabled.
+		if runtime.GOOS != "windows" {
+			t.Fatalf("err: %s", err)
+		}
 	}
 }
 
 func TestPostProcessorPrepare_InlineShebang(t *testing.T) {
-	raws := testConfig()
-
-	delete(raws, "inline_shebang")
-	p := new(PostProcessor)
-	err := p.Configure(raws)
-	if err != nil {
-		t.Fatalf("should not have error: %s", err)
-	}
-	expected := ""
 	if runtime.GOOS != "windows" {
+		raws := testConfig()
+
+		delete(raws, "inline_shebang")
+		p := new(PostProcessor)
+		err := p.Configure(raws)
+		if err != nil {
+			t.Fatalf("should not have error: %s", err)
+		}
 		expected = "/bin/sh -e"
-	}
-	if p.config.InlineShebang != expected {
-		t.Fatalf("bad value: %s", p.config.InlineShebang)
-	}
 
-	// Test with a good one
-	raws["inline_shebang"] = "foo"
-	p = new(PostProcessor)
-	err = p.Configure(raws)
-	if err != nil {
-		t.Fatalf("should not have error: %s", err)
-	}
+		if p.config.InlineShebang != expected {
+			t.Fatalf("bad value: %s", p.config.InlineShebang)
+		}
 
-	if p.config.InlineShebang != "foo" {
-		t.Fatalf("bad value: %s", p.config.InlineShebang)
+		// Test with a good one
+		raws["inline_shebang"] = "foo"
+		p = new(PostProcessor)
+		err = p.Configure(raws)
+		if err != nil {
+			t.Fatalf("should not have error: %s", err)
+		}
+
+		if p.config.InlineShebang != "foo" {
+			t.Fatalf("bad value: %s", p.config.InlineShebang)
+		}
 	}
 }
 
