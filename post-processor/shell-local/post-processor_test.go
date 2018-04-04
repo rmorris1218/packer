@@ -51,7 +51,7 @@ func TestPostProcessorPrepare_InlineShebang(t *testing.T) {
 		if err != nil {
 			t.Fatalf("should not have error: %s", err)
 		}
-		expected = "/bin/sh -e"
+		expected := "/bin/sh -e"
 
 		if p.config.InlineShebang != expected {
 			t.Fatalf("bad value: %s", p.config.InlineShebang)
