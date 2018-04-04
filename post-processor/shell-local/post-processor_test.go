@@ -111,16 +111,18 @@ func TestPostProcessorPrepare_Script(t *testing.T) {
 
 func TestPostProcessorPrepare_ExecuteCommand(t *testing.T) {
 	// Check that passing a string will work (Backwards Compatibility)
-	p := new(PostProcessor)
-	raws := testConfig()
-	raws["execute_command"] = "foo bar"
-	err := p.Configure(raws)
-	expected := []string{"sh", "-c", "foo bar"}
-	if err != nil {
-		t.Fatalf("should handle backwards compatibility: %s", err)
-	}
-	if strings.Compare(strings.Join(p.config.ExecuteCommand, " "), strings.Join(expected, " ")) != 0 {
-		t.Fatalf("Did not get expected execute_command: expected: %#v; received %#v", expected, p.config.ExecuteCommand)
+	if runtime.GOOS != "windows" {
+		p := new(PostProcessor)
+		raws := testConfig()
+		raws["execute_command"] = "foo bar"
+		err := p.Configure(raws)
+		expected := []string{"sh", "-c", "foo bar"}
+		if err != nil {
+			t.Fatalf("should handle backwards compatibility: %s", err)
+		}
+		if strings.Compare(strings.Join(p.config.ExecuteCommand, " "), strings.Join(expected, " ")) != 0 {
+			t.Fatalf("Did not get expected execute_command: expected: %#v; received %#v", expected, p.config.ExecuteCommand)
+		}
 	}
 
 	// Check that passing a list will work
